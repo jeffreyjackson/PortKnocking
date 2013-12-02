@@ -1,0 +1,109 @@
+#!/usr/bin/perl
+
+system("date \"+%m/%d/%y %H:%M\" | md5sum | sed s/\"  -\"/\"\"/ > FirstDate");
+
+#Open FirstDate for input
+open(IN,"FirstDate");
+#Read the string into $Date
+$Date=<IN>;
+#Close the file
+close(IN);
+
+#Repeat for the Key
+open(IN,"Key");
+$KEYL=<IN>;
+close(IN);
+
+print "DateMD5 \n$Date\n";
+print "KEYMD5 \n$KEYL\n";
+
+#MD5 Subroutines
+sub md5_unpack{ unpack "H*", shift }
+sub md5_pack { pack "H*", shift }
+
+#print "MD5Pack KEYL\n";
+#print md5_pack($KEYL);
+#print "\nMD5Pack SD\n";
+#print md5_pack($Date);
+
+#Pack both Key and Date then Xor, then Unpack back to MD5
+$xor = md5_unpack md5_pack($KEYL) ^ md5_pack($Date);
+
+#print "\nPacked MD5 XOR\n";
+#print md5_pack($KEYL) ^ md5_pack($Date);
+
+#Chop off the last two Zeros left over from md5_upack
+chop($xor);
+chop($xor);
+
+print "\nMD5 Unpacked XOR\n";
+print $xor;
+
+
+#Write our XOR result to a file
+open(OUT,">MD5This");
+print OUT $xor;
+close(OUT);
+
+#MD5 the the XOR String, store result in itself but first strip all text but the checksum.
+system("md5sum MD5This|sed s/\"  MD5This\"/\"\"/> MD5This");
+
+#Read the MD5'd XOR string back into $xor
+open(IN, "MD5This");
+$xor=<IN>;
+close(IN);
+
+print "\nMD5'd XOR Result\n";
+print $xor;
+
+#Convert $xor into an array.
+@xor = $xor;
+my @splits;
+my @splits2;
+
+#Split @xor at every 4th character, into seperate array entries
+foreach my $keyline (@xor)
+{
+ @splits = $keyline =~ /(.{1,4})/g;
+}
+
+#For each 4 characters we split earlier, convert them to Decimal.  This gives ports from 0 - 65535 from 0000 - FFFF
+foreach my $test (@splits)
+{
+push(@splits2, hex($test));
+}
+
+$numArgs = $#ARGV + 1;
+if ($numArgs eq "0")
+{
+	print "Calling ./Knocker $splits2[0] $splits2[1] $splits2[2] $splits2[3] $splits2[4] $splits2[5] $splits2[6] $splits2[7]\n\n";
+	system("./Knocker $splits2[0] $splits2[1] $splits2[2] $splits2[3] $splits2[4] $splits2[5] $splits2[6] $splits2[7]");
+}
+elsif ($numArgs eq "2")
+{
+	print "$ARGV[0]\n";
+	print "$ARGV[1]\n";
+	print "./Knocker $ARGV[0] $ARGV[1] $splits2[0] $splits2[1] $splits2[2] $splits2[3] $splits2[4] $splits2[5] $splits2[6] $splits2[7]\n";
+	system("./Knocker $ARGV[0] $ARGV[1] $splits2[0] $splits2[1] $splits2[2] $splits2[3] $splits2[4] $splits2[5] $splits2[6] $splits2[7]"); 
+}
+else
+{
+	print "PerlKnocker v1.0\n";
+	print "\n";
+	print "TEAM STOLL\n";
+	print "Jeffrey Jackson\n";
+	print "Matt Luckett\n";
+	print "Doug Wampler\n";
+	print "Amy Albers\n";
+	print "\n\n";
+	print "./PerlKnocker (invokes menu and step by step execution)\n";
+	print "./PerlKnocker <server> <option> (specify server and direct menu option)\n";
+	print "Mmm-Kay?";
+}
+print "\n\n";
+
+#Delete Temp Files
+system("rm FirstDate");
+system("rm MD5This");
+
+

@@ -1,0 +1,97 @@
+#!/usr/bin/perl
+
+system("date \"+%m/%d/%y %H:%M\" | md5sum | sed s/\"  -\"/\"\"/ > FirstDate");
+
+#Open FirstDate for input
+open(IN,"FirstDate");
+#Read the string into $Date
+$Date=<IN>;
+#Close the file
+close(IN);
+
+#Repeat for the Key
+open(IN,"Key");
+$KEYL=<IN>;
+close(IN);
+
+print "DateMD5 \n$Date\n";
+print "KEYMD5 \n$KEYL\n";
+
+#MD5 Subroutines
+sub md5_unpack{ unpack "H*", shift }
+sub md5_pack { pack "H*", shift }
+
+#print "MD5Pack KEYL\n";
+#print md5_pack($KEYL);
+#print "\nMD5Pack SD\n";
+#print md5_pack($Date);
+
+#Pack both Key and Date then Xor, then Unpack back to MD5
+$xor = md5_unpack md5_pack($KEYL) ^ md5_pack($Date);
+
+#print "\nPacked MD5 XOR\n";
+#print md5_pack($KEYL) ^ md5_pack($Date);
+
+#Chop off the last two Zeros left over from md5_upack
+chop($xor);
+chop($xor);
+
+print "\nMD5 Unpacked XOR\n";
+print $xor;
+
+
+#Write our XOR result to a file
+open(OUT,">MD5This");
+print OUT $xor;
+close(OUT);
+
+#MD5 the the XOR String, store result in itself but first strip all text but the checksum.
+system("md5sum MD5This|sed s/\"  MD5This\"/\"\"/> MD5This");
+
+#Read the MD5'd XOR string back into $xor
+open(IN, "MD5This");
+$xor=<IN>;
+close(IN);
+
+print "\nMD5'd XOR Result\n";
+print $xor;
+
+#Convert $xor into an array.
+@xor = $xor;
+my @splits;
+my @splits2;
+
+#Split @xor at every 4th character, into seperate array entries
+foreach my $keyline (@xor)
+{
+ @splits = $keyline =~ /(.{1,4})/g;
+}
+
+#Open knockd.conf
+open(OUT, ">knockd.conf");
+
+#Print basic knockd information
+print OUT "[options]\nlogfile = /var/log/knockd.log\n";
+
+#For each 4 characters we split earlier, convert them to Decimal.  This gives ports from 0 - 65535 from 0000 - FFFF
+foreach my $test (@splits)
+{
+push(@splits2, hex($test));
+}
+
+#Up to 15 Scripts in Knockd.conf
+#Print out the ports and the argument to pass knockScript
+for ($count=1;$count<15;$count++)
+{
+print OUT "[knock$count]\nsequence = ";
+print OUT "$count,$splits2[0],$splits2[1],$splits2[2],$splits2[3],$splits2[4],$splits2[5],$splits2[6],$splits2[7]\n";
+print OUT "seq_timeout = 10\ntcpflags = syn\ncommand = ./knockScript $count %IP%\n";
+}
+
+close(OUT);
+
+print "\n\n";
+
+#Delete Temp Files
+system("rm FirstDate");
+system("rm MD5This");

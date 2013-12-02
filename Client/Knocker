@@ -1,0 +1,69 @@
+#!/bin/bash
+function LIST()
+{
+echo -e "1)  QuickCam SnapShot"
+echo -e "2)  Who/Last Log"
+echo -e "3)  Quick Nmap scanme.ath.cx"
+echo -e "4)  Full Nmap scanme.ath.cx"
+echo -e "5)  ChkRootKit Results"
+echo -e "6)  X Windows Screenshot"
+echo -e "7)  Reboot"
+echo -e "8)  Shutdown"
+echo -e "9)  Open SSH"
+echo -e "10) Close SSH"
+echo -e "11) Full Nmap Scan Source IP"
+echo -e "12) Open SSH Proxy Tunnel"
+echo -e "13) Close SSH Proxy Tunnel"
+
+echo -n -e "Select Action: "
+read choice
+case "$choice" in
+*) DEST;;
+esac
+}
+
+function DEST()
+{
+echo -e -n "Enter Server Address: "
+read server
+}
+
+if [ "${10}" != "" ]
+then
+./knock $1 $2
+sleep .1s
+./knock $1 $3
+sleep .1s
+./knock $1 $4
+sleep .1s
+./knock $1 $5
+sleep .1s
+./knock $1 $6
+sleep .1s
+./knock $1 $7
+sleep .1s	
+./knock $1 $8
+sleep .1s
+./knock $1 $9
+sleep .1s
+./knock $1 ${10}
+else
+LIST
+./knock $server $choice
+sleep .1s
+./knock $server $1
+sleep .1s
+./knock $server $2
+sleep .1s
+./knock $server $3
+sleep .1s
+./knock $server $4
+sleep .1s
+./knock $server $5
+sleep .1s
+./knock $server $6
+sleep .1s
+./knock $server $7
+sleep .1s
+./knock $server $8
+fi

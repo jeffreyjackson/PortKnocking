@@ -1,0 +1,105 @@
+#!/bin/bash
+
+# $1 is Action Choice
+# $2 is IP of Knocker
+
+if [ "$1" -eq 1 ] 
+then
+(date && echo "Executing Option 1: SendSnapShot") >> /tmp/DebugLog
+videodog -d /dev/video0 -x356 -y292 -w3 -j -f /tmp/Snap.jpg
+date > /tmp/SnapDate
+smtp="mail.insightbb.com" nail -s "Knock SnapShot" -a /tmp/Snap.jpg jeffreyclarkejackson@mac.com,wmluck02@uofl.edu,jeff.jackson@uofl.edu < /tmp/SnapDate
+fi
+
+if [ "$1" -eq 2 ]
+then
+(date && echo "Executing Option 2: Who/Last") >> /tmp/DebugLog
+echo "Who Results" > /tmp/WhoLast
+who >> /tmp/WhoLast
+echo . >> /tmp/WhoLast
+echo . >> /tmp/WhoLast
+echo . >> /tmp/WhoLast
+echo "Last Results" >> /tmp/WhoLast
+last >> /tmp/WhoLast
+smtp="mail.insightbb.com" nail -s "Knock WhoLast Log" jeffreyclarkejackson@mac.com,wmluck02@uofl.edu,jeff.jackson@uofl.edu < /tmp/WhoLast
+fi
+
+if [ "$1" -eq 3 ]
+then
+(date && echo "Executing Option 3: NMap Quick") >> /tmp/DebugLog
+nmap -P0 -O -sS -F -v scanme.ath.cx > /tmp/ScanLog
+smtp="mail.insightbb.com" nail -s "Knock NMap Quick Scan Results" jeffreyclarkejackson@mac.com,wmluck02@uofl.edu,jeff.jackson@uofl.edu < /tmp/ScanLog
+fi
+
+if [ "$1" -eq 4 ]
+then
+(date && echo "Executing Option 4: NMap Full") >> /tmp/DebugLog
+nmap -P0 -O -sS -p 0-65535 -v scanme.ath.cx > /tmp/ScanLog
+smtp="mail.insightbb.com" nail -s "Knock NMap Full Scan Results" jeffreyclarkejackson@mac.com,wmluck02@uofl.edu,jeff.jackson@uofl.edu < /tmp/ScanLog
+fi
+
+if [ "$1" -eq 5 ]
+then
+(date && echo "Executing Option 5: ChkRootKit") >> /tmp/DebugLog
+chkrootkit > /tmp/ChkLog
+smtp="mail.insightbb.com" nail -s "Knock ChkRootKit Results" jeffreyclarkejackson@mac.com,wmluck02@uofl.edu,jeff.jackson@uofl.edu < /tmp/ChkLog
+fi
+
+if [ "$1" -eq 6 ]
+then
+(date && echo "Executing Option 6: ScreenShot") >> /tmp/DebugLog
+import -w root -display :0 /tmp/ScreenShot.jpg
+date > /tmp/SnapDate
+smtp="mail.insightbb.com" nail -s "Knock ScreenShot" -a /tmp/ScreenShot.jpg jeffreyclarkejackson@mac.com,wmluck02@uofl.edu,jeff.jackson@uofl.edu < /tmp/SnapDate
+fi
+
+if [ "$1" -eq 7 ]
+then
+(date && echo "Executing Option 7: Reboot") >> /tmp/DebugLog
+shutdown -r now
+fi
+
+if [ "$1" -eq 8 ]
+then
+(date && echo "Executing Option 8: Shutdown") >> /tmp/DebugLog
+shutdown -h now
+fi
+
+if [ "$1" -eq 9 ]
+then
+(date && echo "Executing Option 9: OpenSSH") >> /tmp/DebugLog
+/usr/sbin/iptables -A INPUT -s $2 -p tcp --syn --dport 22 -j ACCEPT
+fi
+
+if [ "$1" -eq 10 ]
+then
+(date && echo "Executing Option 10: CloseSSH") >> /tmp/DebugLog
+/usr/sbin/iptables -D INPUT -s $2 -p tcp --syn --dport 22 -j ACCEPT
+fi
+
+if [ "$1" -eq 11 ]
+then
+(date && echo "Executing Option 11: NMap Knock Source") >> /tmp/DebugLog
+nmap -P0 -O -sS -v -p 0-65535 $2 > /tmp/ScanLog
+smtp="mail.insightbb.com" nail -s "Knock: NMap Source Full Scan Results" jeffreyclarkejackson@mac.com,wmluck02@uofl.edu,jeff.jackson@uofl.edu < /tmp/ScanLog
+fi
+
+if [ "$1" -eq 12 ]
+then
+(date && echo "Executing Option 12: Open SSH Proxy Tunnel") >> /tmp/DebugLog
+#make sure you create the ssh keys on the client and use ssh-copy-id to copy to server...as root!
+sh -c "echo \$$ >&42; exec ssh -R 8888:localhost:8080 -v -x -T -C -N -n wmluck02@$2" 42>/var/run/knockd/$2.pid
+fi
+
+
+if [ "$1" -eq 13 ]
+then
+(date && echo "Executing Option 13: Close SSH Proxy Tunnel") >> /tmp/DebugLog
+/bin/kill `cat /var/run/knockd/$2.pid`; rm /var/run/knockd/$2.pid
+fi
+
+if [ "$1" -eq 14 ]
+then
+(date && echo "Executing Option 14: Delay To Check for Error") >> /tmp/DebugLog
+sleep 1s
+fi
