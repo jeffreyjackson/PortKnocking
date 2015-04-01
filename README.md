@@ -60,7 +60,7 @@ We have interesting actions that can be performed and e-mailed, for example:
 QuickCam Snapshot
 X11 Snapshot
 Who/Last Log
-Nmap Quick/FullScan on scanme.ath.cx – Updatedable from Internet
+Nmap Quick/FullScan on scanme.ath.cx – able to update from Internet
 Nmap of Source IP
 ChkRootKit Results
 Reboot/Shutdown
@@ -71,7 +71,7 @@ The possibilities are endless.
 ###Support
 Our client package supports
 MacOSX
-Linux-i686
+Linux-i686upd
 Linux-Amd64
 Windows – Cygwin (in progress)
 
